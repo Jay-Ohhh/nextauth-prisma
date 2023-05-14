@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["views", "fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id  String @id @default(cuid())
+  name     String @db.VarChar(45)
+  email    String @unique(map: "uniq_email") @db.VarChar(45)
+  password String
+
+  @@map("user")
+}
