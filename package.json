@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:pull": "dotenv -e .env.local -- npx prisma db pull",
+    "db:pull:print": "dotenv -e .env.local -- npx prisma db pull --print"
   },
   "dependencies": {
     "@prisma/client": "^4.14.0",
@@ -29,6 +31,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "dotenv-cli": "^7.2.1",
     "prisma": "^4.14.0",
     "ts-node": "^10.9.1"
   },
