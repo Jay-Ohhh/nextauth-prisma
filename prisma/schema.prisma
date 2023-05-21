@@ -9,10 +9,11 @@ datasource db {
 }
 
 model User {
-  user_id  String @id @default(cuid())
-  name     String @db.VarChar(45)
-  email    String @unique(map: "uniq_email") @db.VarChar(45)
+  user_id  String  @id @default(cuid())
+  name     String  @db.VarChar(45)
+  email    String  @unique(map: "uniq_email") @db.VarChar(45)
   password String
+  avatar   String?
 
   @@map("user")
 }

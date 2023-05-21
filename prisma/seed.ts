@@ -9,7 +9,6 @@ const prisma = new PrismaClient();
 async function main() {
     bcrypt.hash(adminPwd, saltRounds, async function (err, hash) {
         // Store hash in your password DB.
-
         const user = await prisma.user.upsert({
             where: { email: "admin@admin.com" },
             update: {},

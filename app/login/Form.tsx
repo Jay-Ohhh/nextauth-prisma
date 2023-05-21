@@ -1,9 +1,9 @@
 "use client";
 
+import { env } from "@/env/client.mjs";
 import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
-import Image from "next/image";
 
 export const LoginForm = () => {
     const router = useRouter();
@@ -21,18 +21,22 @@ export const LoginForm = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            setFormValues({ email: "", password: "" });
+            // setFormValues({ email: "", password: "" });
+
+            const JSEncrypt = (await import("jsencrypt")).default;
+            const encrypt = new JSEncrypt();
+            encrypt.setPublicKey(env.NEXT_PUBLIC_RSA_PUBLIC_KEY);
+            const encrypted = encrypt.encrypt(formValues.password) as string;
 
             const res = await signIn("credentials", {
                 redirect: false,
                 email: formValues.email,
-                password: formValues.password,
+                password: encrypted,
                 callbackUrl,
             });
 
             setLoading(false);
 
-            console.log(res);
             if (!res?.error) {
                 router.push(callbackUrl);
             } else {

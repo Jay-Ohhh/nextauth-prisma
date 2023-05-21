@@ -30,10 +30,10 @@ export const serverSchema = z.object({
         process.env.VERCEL ? z.string() : z.string().url()
     ),
     RSA_PRIVATE_KEY: z.string().min(1).trim(),
-    GOOGLE_CLIENT_ID: z.string().min(1).trim().optional(),
-    GOOGLE_CLIENT_SECRET: z.string().min(1).trim().optional(),
-    GITHUB_CLIENT_ID: z.string().min(1).trim().optional(),
-    GITHUB_CLIENT_SECRET: z.string().min(1).trim().optional(),
+    GOOGLE_CLIENT_ID: z.string().min(1).trim(),
+    GOOGLE_CLIENT_SECRET: z.string().min(1).trim(),
+    GITHUB_CLIENT_ID: z.string().min(1).trim(),
+    GITHUB_CLIENT_SECRET: z.string().min(1).trim(),
 });
 
 export const formatErrors = (

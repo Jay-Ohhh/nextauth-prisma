@@ -1,7 +1,11 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/server/db";
 import bcrypt from "bcrypt";
+import JSEncrypt from "jsencrypt/lib";
+import { env } from "@/env/server.mjs";
 
 export const authOptions: NextAuthOptions = {
     pages: {
@@ -12,7 +16,16 @@ export const authOptions: NextAuthOptions = {
     },
     secret: process.env.NEXTAUTH_SECRET,
     providers: [
-        Credentials({
+        // 国内不一定能用
+        GoogleProvider({
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+        }),
+        GitHubProvider({
+            clientId: env.GITHUB_CLIENT_ID,
+            clientSecret: env.GITHUB_CLIENT_SECRET,
+        }),
+        CredentialsProvider({
             name: "Sign in",
             credentials: {
                 email: {
@@ -36,10 +49,20 @@ export const authOptions: NextAuthOptions = {
                     },
                 });
 
-                if (!user || !bcrypt.compareSync(credentials.password, user.password)) {
+                if (!user) {
                     return null;
                 }
 
+                const decrypt = new JSEncrypt();
+                decrypt.setPrivateKey(env.RSA_PRIVATE_KEY);
+                const pwd = decrypt.decrypt(credentials.password) as string;
+
+                if (! await bcrypt.compare(pwd, user.password)) {
+                    return null;
+                }
+
+                // Any object returned will be saved in `user` property of the JWT
+                // and will be pass to jwt callback
                 return {
                     id: user.user_id,
                     email: user.email,
@@ -51,6 +74,8 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         session: ({ session, token }) => {
+            // The session callback is called whenever a session is checked.
+            // e.g. getSession(), getServerSession(), useSession(), /api/auth/session
             return {
                 ...session,
                 user: {
@@ -60,7 +85,23 @@ export const authOptions: NextAuthOptions = {
                 }
             };
         },
-        jwt: ({ token, user }) => {
+        jwt: async ({ token, user, account, profile }) => {
+            if (user?.email && account?.type === "oauth") {
+                await prisma.user.upsert({
+                    where: { email: user.email },
+                    update: {
+                        name: user.name!,
+                        avatar: user.image,
+                    },
+                    create: {
+                        name: user.name!,
+                        email: user.email,
+                        password: "",
+                        avatar: user.image,
+                    },
+                });
+            }
+            // token will be pass to session callback
             if (user) {
                 return {
                     ...token,

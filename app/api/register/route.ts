@@ -1,7 +1,7 @@
 import { prisma } from "@/server/db";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
-import JSEncrypt from "jsencrypt";
+import JSEncrypt from "jsencrypt/lib";
 import { env } from "@/env/server.mjs";
 
 export async function POST(req: Request) {
