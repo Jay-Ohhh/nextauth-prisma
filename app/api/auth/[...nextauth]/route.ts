@@ -16,7 +16,8 @@ export const authOptions: NextAuthOptions = {
     },
     secret: process.env.NEXTAUTH_SECRET,
     providers: [
-        // 国内不一定能用
+        // popup login: https://github.com/arye321/nextauth-google-popup-login
+        // GoogleProvider 在国内不一定能用
         GoogleProvider({
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET,
